@@ -31,9 +31,11 @@ public class GPSComputer {
 
 		double distance = 0;
 
-		throw new UnsupportedOperationException(TODO.method());
-
 		// TODO
+		for (int i = 0; i < gpspoints.length - 1; i++) {
+			distance += GPSUtils.distance(gpspoints[i], gpspoints[i + 1]);
+		}
+		return distance;
 
 	}
 
@@ -41,16 +43,23 @@ public class GPSComputer {
 
 		double elevation = 0;
 
-		throw new UnsupportedOperationException(TODO.method());
-		
 		// TODO 
+		for (int i = 0; i < gpspoints.length - 1; i++) {
+			double elevationChange = gpspoints[i + 1].getElevation() - gpspoints[i].getElevation();
+			if (elevationChange > 0) {
+				elevation += elevationChange;
+			}
+		}
+		return elevation;
 		
 	}
 
 	public int totalTime() {
 
 		// TODO
-		throw new UnsupportedOperationException(TODO.method());
+		int startTime = gpspoints[0].getTime();
+		int endTime = gpspoints[gpspoints.length - 1].getTime();
+		return endTime - startTime;
 		
 	}
 		
@@ -60,25 +69,43 @@ public class GPSComputer {
 		double[] speeds = new double[gpspoints.length-1];
 		
 		// TODO
-		throw new UnsupportedOperationException(TODO.method());
 		
+		for (int i = 0; i < gpspoints.length - 1; i++) {
+			double distance = GPSUtils.distance(gpspoints[i], gpspoints[i + 1]);
+			int time = gpspoints[i + 1].getTime() - gpspoints[i].getTime();
+			speeds[i] = calculateSpeed(distance, time);
+		}
+		return speeds;
 	}
 	
 	public double maxSpeed() {
 		
-		double maxspeed = 0;
-		
 		// TODO 
-		throw new UnsupportedOperationException(TODO.method());
+		double[] speeds = speeds();
+		double maxSpeed = 0;
+		for (double speed : speeds) {
+			if (speed > maxSpeed) {
+				maxSpeed = speed;
+			}
+		}
+		return maxSpeed;
 	
 	}
 
-	public double averageSpeed() {
+	private double calculateSpeed(double distance, int time) {
+		if (time > 0) {
+			return (distance / 1000) * 3.6;
+		} else {
+			return 0;
+		}
+	}
 
-		double average = 0;
+	public double averageSpeed() {
 		
 		// TODO
-		throw new UnsupportedOperationException(TODO.method());
+		double totalDistance = totalDistance() / 1000;
+		double totalTime = totalTime() / 3600.0;
+		return totalDistance / totalTime;
 		
 	}
 
@@ -94,8 +121,19 @@ public class GPSComputer {
 		double speedmph = speed * MS;
 
 		// TODO 
-		throw new UnsupportedOperationException(TODO.method());
-		
+		if (speedmph < 10) {
+			met = 4.0;
+		} else if (speedmph >= 10 && speedmph < 12) {
+			met = 6.0;
+		} else if (speedmph >= 12 && speedmph < 14) {
+			met = 8.0;
+		} else if (speedmph >= 14 && speedmph < 16) {
+			met = 10.0;
+		} else if (speedmph >= 16 && speedmph < 20) {
+			met = 12.0;
+		}
+		kcal = met * WEIGHT * secs / 3600;
+		return kcal;
 	}
 
 	public double totalKcal(double weight) {
@@ -103,17 +141,36 @@ public class GPSComputer {
 		double totalkcal = 0;
 
 		// TODO 
-		throw new UnsupportedOperationException(TODO.method());
-		
+		double[] speeds = speeds();
+
+		for (int i = 0; i < speeds.length; i++) {
+			int secs = gpspoints[i + 1].getTime() - gpspoints[i].getTime();
+			totalkcal += kcal(weight, secs, speeds[i]);
+		}
+		return totalkcal;
 	}
+
 	
 	private static double WEIGHT = 80.0;
 	
 	public void displayStatistics() {
 
 		// TODO 
-		throw new UnsupportedOperationException(TODO.method());
-		
+		double totalDistance = totalDistance() / 1000; // km
+		double totalElevation = totalElevation(); // m
+		double maxSpeed = maxSpeed(); // km/h
+		double averageSpeed = averageSpeed(); // km/h
+		int totalTime = totalTime(); // s
+		double totalKcal = totalKcal(WEIGHT); // kcal
+
+		System.out.println("==============================================");
+		System.out.println("Total time         : " + GPSUtils.formatTime(totalTime));
+		System.out.println("Total distance     : " + GPSUtils.formatDouble(totalDistance) + " km");
+		System.out.println("Total elevation    : " + GPSUtils.formatDouble(totalElevation) + " m");
+		System.out.println("Max speed          : " + GPSUtils.formatDouble(maxSpeed) + " km/t");
+		System.out.println("Average speed      : " + GPSUtils.formatDouble(averageSpeed) + " km/t");
+		System.out.println("Energy             : " + GPSUtils.formatDouble(totalKcal) + " kcal");
+		System.out.println("==============================================");
 	}
 
 }
