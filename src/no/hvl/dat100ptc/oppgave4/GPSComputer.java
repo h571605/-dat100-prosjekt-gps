@@ -70,10 +70,14 @@ public class GPSComputer {
 		
 		// TODO
 		
-		for (int i = 0; i < gpspoints.length - 1; i++) {
-			double distance = GPSUtils.distance(gpspoints[i], gpspoints[i + 1]);
-			int time = gpspoints[i + 1].getTime() - gpspoints[i].getTime();
-			speeds[i] = calculateSpeed(distance, time);
+		for (int i = 0; i < speeds.length; i++) {
+			
+			double currentSpeed = GPSUtils.speed(gpspoints[i], gpspoints[i+1]);
+			speeds[i] = currentSpeed;
+			
+//			double distance = GPSUtils.distance(gpspoints[i], gpspoints[i + 1]);
+//			int time = gpspoints[i + 1].getTime() - gpspoints[i].getTime();
+//			speeds[i] = calculateSpeed(distance, time);
 		}
 		return speeds;
 	}
@@ -92,20 +96,21 @@ public class GPSComputer {
 	
 	}
 
-	private double calculateSpeed(double distance, int time) {
-		if (time > 0) {
-			return (distance / 1000) * 3.6;
-		} else {
-			return 0;
-		}
-	}
+//	private double calculateSpeed(double distance, int time) {
+//		if (time > 0) {
+//			return (distance / 1000) * 3.6;
+//		} else {
+//			return 0;
+//		}
+//	}
 
 	public double averageSpeed() {
 		
 		// TODO
-		double totalDistance = totalDistance() / 1000;
-		double totalTime = totalTime() / 3600.0;
-		return totalDistance / totalTime;
+//		double totalDistance = totalDistance() / 1000;
+//		double totalTime = totalTime() / 3600.0;
+		
+		return totalDistance() / totalTime();
 		
 	}
 
@@ -116,7 +121,6 @@ public class GPSComputer {
 	public double kcal(double weight, int secs, double speed) {
 
 		double kcal;
-
 		double met = 0;		
 		double speedmph = speed * MS;
 
@@ -131,8 +135,13 @@ public class GPSComputer {
 			met = 10.0;
 		} else if (speedmph >= 16 && speedmph < 20) {
 			met = 12.0;
+		} else if (speedmph > 20) {
+			met	= 16.0;
 		}
-		kcal = met * WEIGHT * secs / 3600;
+		
+		System.out.println("met " + met + " weight " + weight + "secs / 3600 " + secs);
+		
+		kcal = met * weight * (secs / 3600);
 		return kcal;
 	}
 
