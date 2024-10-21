@@ -80,7 +80,7 @@ public class ShowRoute extends EasyGraphics {
 			
 			setColor(0, 255, 0);
 			
-			drawCircle(endPosx, startPosy, 5);
+			drawCircle(startPosx, startPosy, 2);
 			drawLine(startPosx, startPosy, endPosx, endPosy);
 		}
 		
